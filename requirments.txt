@@ -1,4 +1,4 @@
 tensorflow-cpu
-opencv-python
+opencv-python-headless
 numpy
 gradio
