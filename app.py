@@ -123,7 +123,7 @@ def load_model():
 
 # OR if using set_weights approach
     loaded = keras.models.load_model("marine_model.h5", compile=False)
-    model.set_weights(loaded.get_weights()
+    model.set_weights(loaded.get_weights())
     
     return model
 
