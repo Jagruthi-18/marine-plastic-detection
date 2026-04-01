@@ -115,6 +115,15 @@ def load_model():
     #     st.success("Model loaded successfully!")
     # except Exception as e:
     #     st.error(f"Model loading failed: {e}")
+    model = keras.models.load_model(
+    "marine_model.h5",
+    compile=False,
+    custom_objects={"InputLayer": input_layer_from_config}
+)
+
+# OR if using set_weights approach
+    loaded = keras.models.load_model("marine_model.h5", compile=False)
+    model.set_weights(loaded.get_weights()
     
     return model
 
