@@ -7,7 +7,7 @@ import tf_keras as keras
 
 #model = load_model("marine_model.h5")
 #model = tf.compat.v1.keras.models.load_model("marine_model.h5")
-model = keras.models.load_model("marine_model.h5")
+model = keras.models.load_model("marine_model.h5",compile=False)
 
 st.title("Marine Plastic Detection")
 
