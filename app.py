@@ -78,6 +78,7 @@
     #     st.warning(f"Waste Detected (Score: {score:.2f})")
     # else:
     #     st.success(f"Clean Water (Score: {score:.2f})")
+
 import streamlit as st
 import numpy as np
 import cv2
@@ -86,14 +87,16 @@ import tf_keras as keras
 from tf_keras.applications import MobileNetV2
 from tf_keras.layers import GlobalAveragePooling2D, Dense
 from tf_keras.models import Sequential
+import tempfile
+import os
 
 @st.cache_resource
 def load_model():
-    # ✅ Rebuild exact same architecture used during training
+    # ✅ Rebuild exact architecture
     base_model = MobileNetV2(
         input_shape=(224, 224, 3),
         include_top=False,
-        weights=None  # no imagenet weights, we load our own
+        weights='imagenet'  # load imagenet first so layer names match
     )
 
     model = Sequential([
@@ -102,10 +105,16 @@ def load_model():
         Dense(1, activation='sigmoid')
     ])
 
-    model(tf.zeros((1, 224, 224, 3)))  # warm up to build graph
+    model(tf.zeros((1, 224, 224, 3)))  # warm up
 
-    # ✅ Load only weights
-    model.load_weights("marine_model.h5")
+    # ✅ Load full model into temp file then extract weights
+    try:
+        # Try loading as full model first
+        loaded = keras.models.load_model("marine_model.h5", compile=False)
+        model.set_weights(loaded.get_weights())  # ✅ copy weights directly
+        st.success("Model loaded successfully!")
+    except Exception as e:
+        st.error(f"Model loading failed: {e}")
 
     return model
 
@@ -134,8 +143,8 @@ def gradcam(image_bgr):
         conv_outputs, base_out = grad_model(img_tensor)
         tape.watch(conv_outputs)
 
-        x = model.layers[1](base_out)       # GlobalAveragePooling2D
-        predictions = model.layers[2](x)    # Dense
+        x = model.layers[1](base_out)
+        predictions = model.layers[2](x)
 
         loss = predictions[:, 0]
 
