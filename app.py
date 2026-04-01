@@ -78,21 +78,39 @@
     #     st.warning(f"Waste Detected (Score: {score:.2f})")
     # else:
     #     st.success(f"Clean Water (Score: {score:.2f})")
-
 import streamlit as st
 import numpy as np
 import cv2
 import tensorflow as tf
 import tf_keras as keras
+from tf_keras.applications import MobileNetV2
+from tf_keras.layers import GlobalAveragePooling2D, Dense
+from tf_keras.models import Sequential
 
-# ✅ Load the actual saved model
 @st.cache_resource
 def load_model():
-    model = keras.models.load_model("marine_model.h5")
-    model(tf.zeros((1, 224, 224, 3)))  # warm up
+    # ✅ Rebuild exact same architecture used during training
+    base_model = MobileNetV2(
+        input_shape=(224, 224, 3),
+        include_top=False,
+        weights=None  # no imagenet weights, we load our own
+    )
+
+    model = Sequential([
+        base_model,
+        GlobalAveragePooling2D(),
+        Dense(1, activation='sigmoid')
+    ])
+
+    model(tf.zeros((1, 224, 224, 3)))  # warm up to build graph
+
+    # ✅ Load only weights
+    model.load_weights("marine_model.h5")
+
     return model
 
 model = load_model()
+
 
 def gradcam(image_bgr):
     IMG_SIZE = 224
@@ -101,7 +119,6 @@ def gradcam(image_bgr):
     img_array = img / 255.0
     img_array = np.expand_dims(img_array, axis=0).astype(np.float32)
 
-    # ✅ Build grad_model using base MobileNetV2
     base_model = model.layers[0]
     last_conv_layer = base_model.get_layer("out_relu")
 
@@ -149,7 +166,7 @@ uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-    image_bgr = cv2.imdecode(file_bytes, 1)  # BGR format
+    image_bgr = cv2.imdecode(file_bytes, 1)
 
     col1, col2 = st.columns(2)
 
@@ -161,18 +178,7 @@ if uploaded_file is not None:
             overlay, score = gradcam(image_bgr)
             st.image(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB), caption="Grad-CAM Output")
 
-    # Prediction result
     if score > 0.5:
         st.warning(f"⚠️ Waste Detected — Confidence: {score*100:.1f}%")
     else:
         st.success(f"✅ Clean Water — Confidence: {(1-score)*100:.1f}%")
-# ```
-
-# And update your `requirements.txt`:
-# ```
-# numpy<2.0.0
-# tensorflow==2.15.0
-# tf-keras==2.15.0
-# opencv-python-headless
-# streamlit
-# h5py
