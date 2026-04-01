@@ -3,3 +3,4 @@ tensorflow==2.15.0
 tf-keras==2.15.0
 opencv-python-headless
 streamlit
+h5py
