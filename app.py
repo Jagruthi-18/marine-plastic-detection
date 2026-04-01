@@ -3,9 +3,11 @@ import numpy as np
 import cv2
 import tensorflow as tf
 #from tensorflow.keras.models import load_model
+import tf_keras as keras
 
 #model = load_model("marine_model.h5")
-model = tf.compat.v1.keras.models.load_model("marine_model.h5")
+#model = tf.compat.v1.keras.models.load_model("marine_model.h5")
+model = keras.models.load_model("marine_model.h5")
 
 st.title("Marine Plastic Detection")
 
