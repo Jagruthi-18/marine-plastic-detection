@@ -2,9 +2,10 @@ import streamlit as st
 import numpy as np
 import cv2
 import tensorflow as tf
-from tensorflow.keras.models import load_model
+#from tensorflow.keras.models import load_model
 
-model = load_model("marine_model.h5")
+#model = load_model("marine_model.h5")
+model = tf.compat.v1.keras.models.load_model("marine_model.h5")
 
 st.title("Marine Plastic Detection")
 
