@@ -119,7 +119,7 @@ def load_model():
     "marine_model.h5",
     compile=False,
     custom_objects={"InputLayer": input_layer_from_config}
-)
+    )
 
 # OR if using set_weights approach
     loaded = keras.models.load_model("marine_model.h5", compile=False)
