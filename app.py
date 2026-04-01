@@ -108,13 +108,13 @@ def load_model():
     model(tf.zeros((1, 224, 224, 3)))  # warm up
 
     # ✅ Load full model into temp file then extract weights
-    # try:
-    #     # Try loading as full model first
-    #     loaded = keras.models.load_model("marine_model.h5", compile=False)
-    #     model.set_weights(loaded.get_weights())  # ✅ copy weights directly
-    #     st.success("Model loaded successfully!")
-    # except Exception as e:
-    #     st.error(f"Model loading failed: {e}")
+    try:
+        # Try loading as full model first
+        loaded = keras.models.load_model("marine_model.h5", compile=False)
+        model.set_weights(loaded.get_weights())  # ✅ copy weights directly
+        st.success("Model loaded successfully!")
+    except Exception as e:
+        st.error(f"Model loading failed: {e}")
     
     return model
 
